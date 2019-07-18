@@ -1,38 +1,33 @@
 mod common;
 mod config;
+mod context;
 mod error;
+mod fn_cmd;
+mod fn_env;
+mod function;
 mod opt;
 mod template_parse_error;
-mod templates;
+
+#[cfg(test)]
+mod testing;
 
 use crate::common::*;
 
 fn main() -> Result<(), Error> {
   let opt = Opt::from_args();
 
-  let base_directories = BaseDirectories::new()?;
+  let config_path = opt.config_path()?;
 
-  let config_path = base_directories
-    .find_config_file("odin.yaml")
-    .ok_or(Error::ConfigMissing)?;
+  let config = Config::load(&config_path)?;
 
-  let config_reader = File::open(&config_path).map_err(|io_error| Error::ConfigIo {
-    path: config_path.clone(),
-    io_error,
-  })?;
+  let templates = Context::new(&config.templates)?;
 
-  let config: Config =
-    serde_yaml::from_reader(config_reader).map_err(|yaml_error| Error::ConfigDeserialize {
-      path: config_path.clone(),
-      yaml_error,
-    })?;
+  let url = templates.render(&opt.template, &opt.query)?;
 
-  let templates = Templates::from(&config.templates)?;
-
-  let mut context = Context::new();
-  context.insert("query", &opt.query);
-
-  let url = templates.render(&opt.template, &context)?;
+  if opt.print {
+    println!("{}", url.as_str());
+    return Ok(());
+  }
 
   let output = webbrowser::open(&url.as_str()).map_err(|io_error| Error::BrowserOpen {
     url: url.clone(),
@@ -43,6 +38,8 @@ fn main() -> Result<(), Error> {
     return Err(Error::BrowserExitStatus {
       url: url.clone(),
       exit_status: output.status,
+      stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+      stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
     });
   }
 

@@ -1,11 +1,11 @@
 use crate::common::*;
 
-pub(crate) struct Templates {
+pub(crate) struct Context {
   tera: Tera,
 }
 
-impl Templates {
-  pub(crate) fn from(templates: &BTreeMap<String, String>) -> Result<Templates, Error> {
+impl Context {
+  pub(crate) fn new(templates: &BTreeMap<String, String>) -> Result<Context, Error> {
     let mut tera = Tera::default();
 
     let errors = templates
@@ -26,10 +26,16 @@ impl Templates {
       return Err(Error::TemplateParse { errors });
     }
 
-    Ok(Templates { tera })
+    FnCmd.register(&mut tera);
+    FnEnv.register(&mut tera);
+
+    Ok(Context { tera })
   }
 
-  pub(crate) fn render(&self, name: &str, context: &Context) -> Result<Url, Error> {
+  pub(crate) fn render(&self, name: &str, query: &str) -> Result<Url, Error> {
+    let mut context = tera::Context::new();
+    context.insert("query", query);
+
     let text = self
       .tera
       .render(name, context)
@@ -42,5 +48,21 @@ impl Templates {
       text,
       url_parse_error,
     })
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn simple() -> Result<(), Error> {
+    let context = testing::context(vec![("example", "https://example.com/search?q={{query}}")])?;
+
+    let result = context.render("example", "XYZ")?;
+
+    assert_eq!(result.as_str(), "https://example.com/search?q=XYZ");
+
+    Ok(())
   }
 }

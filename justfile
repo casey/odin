@@ -3,3 +3,6 @@ watch:
 
 minimal-versions:
 	cargo +nightly generate-lockfile -Z minimal-versions
+
+install-default-config:
+	cp odin.yaml ~/.config/odin.yaml

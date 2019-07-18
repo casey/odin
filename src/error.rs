@@ -25,6 +25,8 @@ pub(crate) enum Error {
   BrowserExitStatus {
     url: Url,
     exit_status: ExitStatus,
+    stdout: String,
+    stderr: String,
   },
   BrowserOpen {
     url: Url,

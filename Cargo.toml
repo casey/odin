@@ -10,9 +10,15 @@ edition     = "2018"
 [dependencies]
 serde        = "1.0.97"
 serde_derive = "1.0.97"
+serde_json   = "1.0.40"
 serde_yaml   = "0.8.9"
 structopt    = "0.2.18"
-tera         = "0.11.20"
+tera         = "1.0.0-beta.13"
 url          = "1.7.2"
 webbrowser   = "0.5.1"
 xdg          = "2.2.0"
+indoc = "0.3.3"
+
+[dev-dependencies]
+executable-path = "1.0.0"
+tempfile = "3.1.0"
