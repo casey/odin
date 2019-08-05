@@ -1,9 +1,20 @@
 use crate::common::*;
 
 pub(crate) mod common {
-  pub(crate) use std::ffi::{OsStr, OsString};
+  pub(crate) use std::{
+    ffi::{OsStr, OsString},
+    io::Cursor,
+  };
 
   pub(crate) use std::error::Error as _;
+}
+
+use unindent::unindent;
+
+pub(crate) fn config(yaml: &str) -> Result<Config, Error> {
+  let yaml = unindent(yaml);
+  let config = Config::from_reader(Cursor::new(yaml)).unwrap();
+  Ok(config)
 }
 
 pub(crate) fn context(

@@ -7,7 +7,6 @@ use tempfile::TempDir;
 macro_rules! case {
   {
     name:   $name:ident,
-    print:  true,
     config: $config:expr,
     stdout: $stdout:expr,
   } => {
@@ -33,6 +32,10 @@ macro_rules! case {
         .arg("baz")
         .output()?;
 
+      if !output.status.success() {
+        panic!("odin invocation failed with status {}");
+      }
+
       let have = String::from_utf8_lossy(&output.stdout).into_owned();
 
       assert_eq!(have, want);
@@ -44,7 +47,6 @@ macro_rules! case {
 
 case! {
   name:  echo,
-  print: true,
   config: r#"
     templates:
       foo: https://{{cmd(bin="echo", args=["bar"])}}.{{query}}.com

@@ -20,9 +20,11 @@ fn main() -> Result<(), Error> {
 
   let config = Config::load(&config_path)?;
 
-  let templates = Context::new(&config.templates)?;
+  let context = Context::new(&config.templates)?;
 
-  let url = templates.render(&opt.template, &opt.query)?;
+  let template = config.resolve(&opt.template)?;
+
+  let url = context.render(template, &opt.query)?;
 
   if opt.print {
     println!("{}", url.as_str());

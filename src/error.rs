@@ -11,6 +11,9 @@ pub(crate) enum Error {
     path: PathBuf,
     io_error: io::Error,
   },
+  TemplateUnknown {
+    name: String,
+  },
   TemplateParse {
     errors: Vec<TemplateParseError>,
   },
