@@ -1,11 +1,17 @@
 mod common;
 mod config;
 mod context;
+mod default_config;
 mod error;
+mod filter;
 mod fn_cmd;
 mod fn_env;
+mod ft_join;
 mod function;
+mod location;
 mod opt;
+mod query;
+mod subcommand;
 mod template_parse_error;
 
 #[cfg(test)]
@@ -14,36 +20,5 @@ mod testing;
 use crate::common::*;
 
 fn main() -> Result<(), Error> {
-  let opt = Opt::from_args();
-
-  let config_path = opt.config_path()?;
-
-  let config = Config::load(&config_path)?;
-
-  let context = Context::new(&config.templates)?;
-
-  let template = config.resolve(&opt.template)?;
-
-  let url = context.render(template, &opt.query)?;
-
-  if opt.print {
-    println!("{}", url.as_str());
-    return Ok(());
-  }
-
-  let output = webbrowser::open(&url.as_str()).map_err(|io_error| Error::BrowserOpen {
-    url: url.clone(),
-    io_error,
-  })?;
-
-  if !output.status.success() {
-    return Err(Error::BrowserExitStatus {
-      url: url.clone(),
-      exit_status: output.status,
-      stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
-      stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
-    });
-  }
-
-  Ok(())
+  Opt::from_args().run()
 }

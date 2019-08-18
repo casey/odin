@@ -2,6 +2,8 @@ use crate::common::*;
 
 use tera::{Map, Value};
 
+type Boxed = Box<dyn Fn(&HashMap<String, Value>) -> Result<Value, tera::Error> + Send + Sync>;
+
 pub(crate) trait Function: Send + Sync + Sized + 'static {
   type Arguments: DeserializeOwned;
 
@@ -15,7 +17,7 @@ pub(crate) trait Function: Send + Sync + Sized + 'static {
     tera.register_function(self.name(), self.boxed())
   }
 
-  fn boxed(self) -> Box<Fn(&HashMap<String, Value>) -> Result<Value, tera::Error> + Send + Sync> {
+  fn boxed(self) -> Boxed {
     Box::new(move |args| self.dispatch(args))
   }
 
@@ -33,6 +35,6 @@ pub(crate) trait Function: Send + Sync + Sized + 'static {
       )
     })?;
 
-    self.call(args).map_err(|msg| tera::Error::msg(msg))
+    self.call(args).map_err(tera::Error::msg)
   }
 }

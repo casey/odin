@@ -27,13 +27,13 @@ macro_rules! case {
       let output = Command::new(executable)
         .arg("--config")
         .arg(config_path)
-        .arg("--print")
+        .arg("print")
         .arg("foo")
         .arg("baz")
         .output()?;
 
       if !output.status.success() {
-        panic!("odin invocation failed with status {}");
+        panic!("odin invocation failed with status: {}", output.status);
       }
 
       let have = String::from_utf8_lossy(&output.stdout).into_owned();
@@ -49,7 +49,7 @@ case! {
   name:  echo,
   config: r#"
     templates:
-      foo: https://{{cmd(bin="echo", args=["bar"])}}.{{query}}.com
+      foo: https://{{cmd(bin="echo", args=["bar"])}}.{{args | join}}.com
   "#,
   stdout: "https://bar.baz.com/\n",
 }

@@ -2,26 +2,16 @@ use crate::common::*;
 
 #[derive(StructOpt)]
 pub(crate) struct Opt {
-  #[structopt(name = "TEMPLATE")]
-  pub(crate) template: String,
-  #[structopt(name = "QUERY")]
-  pub(crate) query: String,
   #[structopt(name = "CONFIG", long = "--config")]
-  pub(crate) config_path: Option<PathBuf>,
-  #[structopt(name = "PRINT", long = "print")]
-  pub(crate) print: bool,
+  config_path: Option<PathBuf>,
+  #[structopt(subcommand)]
+  subcommand: Subcommand,
 }
 
 impl Opt {
-  pub(crate) fn config_path(&self) -> Result<PathBuf, Error> {
-    if let Some(config_path) = &self.config_path {
-      return Ok(config_path.clone());
-    }
+  pub(crate) fn run(self) -> Result<(), Error> {
+    let config = Config::load(self.config_path)?;
 
-    let base_directories = BaseDirectories::new()?;
-
-    base_directories
-      .find_config_file(Config::FILE_NAME)
-      .ok_or(Error::ConfigMissing)
+    self.subcommand.run(&config)
   }
 }

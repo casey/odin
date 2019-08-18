@@ -27,9 +27,9 @@ fn print(template: &str, query: &str) -> io::Result<String> {
   let executable = executable_path("odin");
 
   let output = Command::new(executable)
-    .arg("--config")
-    .arg("odin.yaml")
-    .arg("--print")
+    // .arg("--config")
+    // .arg("odin.yaml")
+    .arg("print")
     .arg(template)
     .arg(query)
     .output()?;
@@ -37,6 +37,7 @@ fn print(template: &str, query: &str) -> io::Result<String> {
   Ok(String::from_utf8_lossy(&output.stdout).into_owned())
 }
 
+#[allow(unused)]
 fn cmd(bin: &str, args: &[&str]) -> String {
   let output = Command::new(bin).args(args).output().unwrap();
 
@@ -62,11 +63,4 @@ case! {
   template: "github",
   query:    "just",
   rendered: "https://github.com/search?q=just\n",
-}
-
-case! {
-  name:     rustup_stdlib,
-  template: "rustup-stdlib",
-  query:    "str::fix_my_spelling_mistakes",
-  rendered: format!("file://{}", cmd("rustup", &["doc", "--std", "--path"])),
 }

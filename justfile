@@ -6,3 +6,9 @@ minimal-versions:
 
 install-default-config:
 	cp odin.yaml ~/.config/odin.yaml
+
+injstall:
+	cargo install --force --path .
+
+clippy:
+	cargo clippy

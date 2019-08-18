@@ -2,14 +2,20 @@ use crate::common::*;
 
 #[derive(Debug)]
 pub(crate) enum Error {
-  ConfigMissing,
   ConfigDeserialize {
-    path: PathBuf,
+    location: Location,
+    yaml_error: serde_yaml::Error,
+  },
+  ConfigSerialize {
     yaml_error: serde_yaml::Error,
   },
   ConfigIo {
     path: PathBuf,
     io_error: io::Error,
+  },
+  AliasTargetUnknown {
+    name: String,
+    target: String,
   },
   TemplateUnknown {
     name: String,

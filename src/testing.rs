@@ -1,10 +1,7 @@
 use crate::common::*;
 
 pub(crate) mod common {
-  pub(crate) use std::{
-    ffi::{OsStr, OsString},
-    io::Cursor,
-  };
+  pub(crate) use std::ffi::{OsStr, OsString};
 
   pub(crate) use std::error::Error as _;
 }
@@ -13,8 +10,15 @@ use unindent::unindent;
 
 pub(crate) fn config(yaml: &str) -> Result<Config, Error> {
   let yaml = unindent(yaml);
-  let config = Config::from_reader(Cursor::new(yaml)).unwrap();
+  let config = Config::from_yaml(&yaml, Location::name("test config"))?;
   Ok(config)
+}
+
+pub(crate) fn query(name: &str, args: &[&str]) -> Query {
+  Query {
+    args: args.into_iter().map(|arg| arg.to_string()).collect(),
+    name: name.to_string(),
+  }
 }
 
 pub(crate) fn context(
@@ -25,11 +29,18 @@ pub(crate) fn context(
     .map(|(name, text)| (name.into(), text.into()))
     .collect::<BTreeMap<String, String>>();
 
-  Context::new(&templates)
+  let config = Config {
+    root: true,
+    parent: None,
+    aliases: BTreeMap::new(),
+    templates,
+  };
+
+  Context::new(&config)
 }
 
 pub(crate) fn render_error_message(context: &Context, template: &str, query: &str) -> String {
-  match context.render(template, query) {
+  match context.render(template, &[query]) {
     Err(Error::TemplateRender { name, tera_error }) => {
       assert_eq!(name, template);
 

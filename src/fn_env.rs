@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use tera::Value;
-
 pub(crate) struct FnEnv;
 
 #[derive(Deserialize)]
@@ -22,7 +20,7 @@ impl Function for FnEnv {
 
   fn call(&self, args: Self::Arguments) -> Result<Value, String> {
     env::var(&args.var)
-      .map(|val| Value::String(val))
+      .map(Value::String)
       .map_err(|var_error| match var_error {
         env::VarError::NotPresent => format!("env var `{}` not present", args.var),
         env::VarError::NotUnicode(os_string) => format!(
@@ -42,12 +40,12 @@ mod tests {
   fn simple() -> Result<(), Error> {
     let context = testing::context(vec![(
       "example",
-      r#"https://example.com/search?q={{query}}-{{env(var="FOO")}}"#,
+      r#"https://example.com/search?q={{args | join}}-{{env(var="FOO")}}"#,
     )])?;
 
     env::set_var("FOO", "BAR");
 
-    let result = context.render("example", "baz")?;
+    let result = context.render("example", &["baz"])?;
 
     assert_eq!(result.as_str(), "https://example.com/search?q=baz-BAR");
 
@@ -58,7 +56,7 @@ mod tests {
   fn missing() -> Result<(), Error> {
     let context = testing::context(vec![(
       "example",
-      r#"https://example.com/search?q={{query}}-{{env(var="BAZZZZZZZZZ")}}"#,
+      r#"https://example.com/search?q={{args | join}}-{{env(var="BAZZZZZZZZZ")}}"#,
     )])?;
 
     assert_eq!(
@@ -73,7 +71,7 @@ mod tests {
   fn not_unicode() -> Result<(), Error> {
     let context = testing::context(vec![(
       "example",
-      r#"https://example.com/search?q={{query}}-{{env(var="BAR")}}"#,
+      r#"https://example.com/search?q={{args | join}}-{{env(var="BAR")}}"#,
     )])?;
 
     let non_unicode = testing::non_unicode_os_string();
