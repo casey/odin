@@ -10,10 +10,8 @@ impl Open {
   pub(crate) fn run(self, config: &Config) -> Result<(), Error> {
     let url = self.query.render(config)?;
 
-    let output = webbrowser::open(&url.as_str()).map_err(|io_error| Error::BrowserOpen {
-      url: url.clone(),
-      io_error,
-    })?;
+    let output =
+      webbrowser::open(&url.as_str()).map_err(|io_error| Error::BrowserLaunch { io_error })?;
 
     if !output.status.success() {
       return Err(Error::BrowserExitStatus {

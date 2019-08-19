@@ -33,7 +33,6 @@ impl Context {
         tera
           .add_raw_template(name, text)
           .map_err(|tera_error| TemplateParseError {
-            name: name.clone(),
             text: text.clone(),
             tera_error,
           })
@@ -59,7 +58,7 @@ impl Context {
       .map(|target| target.as_str())
       .unwrap_or(name);
 
-    if self.templates.contains_key(target) {
+    if let Some(template) = self.templates.get(target) {
       let mut context = tera::Context::new();
       let args = Value::Array(
         args
@@ -73,7 +72,7 @@ impl Context {
         .tera
         .render(target, context)
         .map_err(|tera_error| Error::TemplateRender {
-          name: name.to_owned(),
+          text: template.to_owned(),
           tera_error,
         })?;
 

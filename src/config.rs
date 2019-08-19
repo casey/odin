@@ -35,7 +35,7 @@ impl Config {
 
   pub(crate) fn from_path(path: &Path) -> Result<Config, Error> {
     let yaml = fs::read_to_string(&path).map_err(|io_error| Error::ConfigIo {
-      path: path.to_owned(),
+      location: Location::path(path),
       io_error,
     })?;
 

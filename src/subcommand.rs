@@ -6,11 +6,14 @@ pub(crate) mod print;
 
 #[derive(StructOpt)]
 pub(crate) enum Subcommand {
-  #[structopt(name = "open")]
+  #[structopt(name = "open", about = "Open query with browser")]
+  #[structopt(raw(setting = "AppSettings::ColoredHelp"))]
   Open(open::Open),
-  #[structopt(name = "print")]
+  #[structopt(name = "print", about = "Print rendered query to stdout")]
+  #[structopt(raw(setting = "AppSettings::ColoredHelp"))]
   Print(print::Print),
-  #[structopt(name = "dump")]
+  #[structopt(name = "dump", about = "Dump current config file to stdout")]
+  #[structopt(raw(setting = "AppSettings::ColoredHelp"))]
   Dump(dump::Dump),
 }
 

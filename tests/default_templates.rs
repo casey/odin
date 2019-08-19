@@ -27,8 +27,6 @@ fn print(template: &str, query: &str) -> io::Result<String> {
   let executable = executable_path("odin");
 
   let output = Command::new(executable)
-    // .arg("--config")
-    // .arg("odin.yaml")
     .arg("print")
     .arg(template)
     .arg(query)

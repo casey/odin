@@ -6,6 +6,21 @@ pub(crate) mod common {
   pub(crate) use std::error::Error as _;
 }
 
+macro_rules! display_test {
+  {
+    name: $name:ident,
+    want: $want:expr,
+    have: $have:expr,
+  } => {
+    #[test]
+    fn $name() {
+      let want = $want;
+      let have = $have.to_string();
+      assert_eq!(have, want);
+    }
+  }
+}
+
 use unindent::unindent;
 
 pub(crate) fn config(yaml: &str) -> Result<Config, Error> {
@@ -41,9 +56,7 @@ pub(crate) fn context(
 
 pub(crate) fn render_error_message(context: &Context, template: &str, query: &str) -> String {
   match context.render(template, &[query]) {
-    Err(Error::TemplateRender { name, tera_error }) => {
-      assert_eq!(name, template);
-
+    Err(Error::TemplateRender { tera_error, .. }) => {
       let source = tera_error
         .source()
         .unwrap()
