@@ -1,5 +1,11 @@
+# this template shouldn't inherit from the default template, because
+# it *is* the default template, so that would mean infinite recursion
 root: true
 
+# default templates
+# arguments are captured as an array, which is passed to templates in
+# the `var` variable. most templates use the `join` filter to join them
+# into a space-separated query string
 templates:
   crates-io: https://crates.io/search?q={{args | join}}
   github: https://github.com/search?q={{args | join}}
@@ -8,6 +14,8 @@ templates:
   stack-overflow: https://stackoverflow.com/search?q={{args | join}}
   thesaurus: https://www.thesaurus.com/browse/{{args | join}}
 
+# default aliases
+# aliases save typing by giving templates alternative names
 aliases:
   ci: crates-io
   gg: google
