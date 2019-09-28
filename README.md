@@ -50,4 +50,4 @@ Odin supports the following subcommands:
 contributions
 -------------
 
-Your feature requests, pull request, suggestions, and additions to the default config are most appreciated!
+Your feature requests, pull request, suggestions, and additions to the default config are most welcome!
